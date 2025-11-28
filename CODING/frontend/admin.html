@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - HardwareForge</title>
+  <link rel="stylesheet" href="public/css/bootstrap.min.css">
+  <style>
+    body { padding: 20px; }
+    .tab-content { margin-top: 20px; }
+    table { width: 100%; margin-bottom: 20px; }
+    th, td { text-align: left; }
+  </style>
+</head>
+<body>
+
+<!-- Simple Admin Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Admin Panel</a>
+    <div class="d-flex">
+      <button id="logoutBtn" class="btn btn-outline-light btn-sm">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<!-- Admin Tabs -->
+<ul class="nav nav-tabs" id="adminTabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button">Users</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="threads-tab" data-bs-toggle="tab" data-bs-target="#threads" type="button">Threads</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="products-tab" data-bs-toggle="tab" data-bs-target="#products" type="button">Products</button>
+  </li>
+</ul>
+
+<div class="tab-content">
+    <!-- Users Tab -->
+    <div class="tab-pane fade show active" id="users">
+        <table class="table table-striped" id="usersTable">
+        <thead>
+            <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- Threads Tab -->
+    <div class="tab-pane fade" id="threads">
+    <table class="table table-striped" id="threadsTable">
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>User</th>
+            <th>Created At</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    </div>
+
+    <div class="tab-pane fade" id="products">
+    <select id="productType" class="form-select mb-2">
+        <option value="cpus">CPUs</option>
+        <option value="gpus">GPUs</option>
+        <option value="motherboards">Motherboards</option>
+        <option value="rams">RAMs</option>
+        <option value="psus">PSUs</option>
+        <option value="cases">Cases</option>
+        <option value="cpucoolers">CPU Coolers</option>
+        <option value="storages">Storages</option>
+    </select>
+    <table class="table table-striped" id="productsTable">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    </div>
+</div>
+
+<script src="public/js/bootstrap.bundle.min.js"></script>
+<script>
+const token = localStorage.getItem('token'); // Admin JWT token
+
+// --- USERS ---
+function loadUsers(){
+  fetch('/api/admin/users', { headers: { Authorization: 'Bearer ' + token } })
+    .then(res => res.json())
+    .then(users => {
+      const tbody = document.querySelector('#usersTable tbody');
+      tbody.innerHTML = '';
+      users.forEach(user => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${user.Username}</td>
+          <td>${user.Email_Address}</td>
+          <td>${user.role}</td>
+          <td>
+            <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})">Delete</button>
+            <button class="btn btn-sm btn-primary" onclick="editUserRole(${user.id}, '${user.role}')">Edit Role</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+}
+
+function deleteUser(id){
+  if(confirm('Delete this user?')){
+    fetch('/api/admin/users/' + id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } })
+      .then(() => loadUsers());
+  }
+}
+
+function editUserRole(id, currentRole){
+  const role = prompt('Enter new role (user/admin):', currentRole);
+  if(role && (role === 'user' || role === 'admin')){
+    fetch('/api/admin/users/' + id, {
+      method: 'PUT',
+      headers: { 'Content-Type':'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({ role })
+    }).then(() => loadUsers());
+  }
+}
+
+// --- THREADS ---
+function loadThreads(){
+  fetch('/api/threads', { headers: { Authorization: 'Bearer ' + token } })
+    .then(res => res.json())
+    .then(threads => {
+      const tbody = document.querySelector('#threadsTable tbody');
+      tbody.innerHTML = '';
+      threads.forEach(thread => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${thread.title}</td>
+          <td>${thread.Username}</td>
+          <td>${new Date(thread.created_at).toLocaleString()}</td>
+          <td>
+            <button class="btn btn-sm btn-danger" onclick="deleteThread(${thread.id})">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+}
+
+function deleteThread(id){
+  if(confirm('Delete this thread?')){
+    fetch('/api/admin/threads/' + id, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } })
+      .then(() => loadThreads());
+  }
+}
+
+// --- PRODUCTS ---
+function loadProducts(){
+  const table = document.querySelector('#productsTable tbody');
+  const type = document.getElementById('productType').value;
+  table.innerHTML = '';
+  fetch(`/api/${type}`)
+    .then(res => res.json())
+    .then(products => {
+      products.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${p.name}</td>
+          <td>${p.price}</td>
+          <td>
+            <button class="btn btn-sm btn-primary" onclick="editProduct('${type}', ${p.id}, '${p.name}', ${p.price})">Edit</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteProduct('${type}', ${p.id})">Delete</button>
+          </td>
+        `;
+        table.appendChild(tr);
+      });
+    });
+}
+
+function editProduct(type, id, currentName, currentPrice){
+  const newName = prompt('Enter new product name:', currentName);
+  if(newName === null) return; // Cancel pressed
+  const newPrice = prompt('Enter new product price:', currentPrice);
+  if(newPrice === null) return;
+
+  fetch(`/api/admin/products/${type}/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+    body: JSON.stringify({ name: newName, price: parseFloat(newPrice) })
+  }).then(() => loadProducts());
+}
+
+function deleteProduct(type, id){
+  if(confirm('Delete this product?')){
+    fetch(`/api/admin/products/${type}/${id}`, { method: 'DELETE', headers: { Authorization: 'Bearer ' + token } })
+      .then(() => loadProducts());
+  }
+}
+
+document.getElementById('productType').addEventListener('change', loadProducts);
+
+// Initial load
+loadUsers();
+loadThreads();
+loadProducts();
+
+// --- LOGOUT ---
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  localStorage.removeItem('user');
+  localStorage.removeItem('token');
+  window.location.href = '/login.html';
+});
+</script>
+</body>
+</html>

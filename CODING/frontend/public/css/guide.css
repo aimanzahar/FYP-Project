@@ -1,0 +1,133 @@
+.wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  height: 100vh;
+  background-color: #f8f9fa;
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+  z-index: 1000;
+  color: #212529;
+}
+
+body.dark {
+  color: #f1f1f1 !important;
+}
+
+.main-content {
+  margin-left: 250px;
+  padding: 20px;
+  flex: 1;
+  min-height: 100vh;
+  box-sizing: border-box;
+  overflow-y: auto;
+  color: #212529;
+}
+
+
+/* ===== Cards ===== */
+.card {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  transition: background-color 0.3s ease, color 0.3s ease, border 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  padding: 0; /* remove extra padding from card itself */
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.card-body {
+  padding: 0.75rem; /* smaller padding */
+}
+
+.card-title {
+  font-size: 1rem; /* smaller font */
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.card-text {
+  font-size: 0.85rem; /* smaller font */
+  color: #555;
+}
+
+/* ===== Videos (Iframe) ===== */
+.ratio {
+  height: 500px; /* smaller iframe height */
+}
+
+.ratio iframe {
+  border-radius: 4px;
+  width: 100%;
+  height: 100%;
+}
+
+/* ===== 2-column layout ===== */
+.row.g-4 > .col-md-6 {
+  flex: 0 0 50%;
+  max-width: 50%;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .row.g-4 > .col-md-6 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+/* ===== Dark Mode Adjustments ===== */
+body.dark .main-content {
+  color: #f1f1f1;
+  background-color: #121212;
+}
+
+body.dark .card {
+  background-color: #1e1e1e;
+  border-color: #2c2c2c;
+  color: #f1f1f1;
+}
+
+body.dark .card-title {
+  color: #fff;
+}
+
+body.dark .card-text {
+  color: #ccc;
+}
+
+/* ===== Light Mode Adjustments ===== */
+body.light .card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  color: #212529;
+}
+
+body.light .card-title {
+  color: #212529;
+}
+
+body.light .card-text {
+  color: #555;
+}
+
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  .main-content {
+    margin-left: 200px;
+    padding: 15px;
+  }
+}

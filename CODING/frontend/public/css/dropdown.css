@@ -1,0 +1,40 @@
+/*  light mode */
+#productsDropdown {
+  display: none;
+  position: absolute;
+  top: 150px;
+  left: 0px;
+  z-index: 1000;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  color: black; /* text color */
+}
+
+#productsDropdown a {
+  color: #212529; /* dark gray text for light mode */
+  text-decoration: none;
+}
+
+#productsDropdown a:hover {
+  color: #0d6efd; /* Bootstrap primary blue on hover */
+}
+
+#productsDropdown.show-dropdown {
+  display: block;
+}
+
+/* Dark mode */
+body.dark #productsDropdown {
+  background-color: #1c1c1c;
+  border-color: #333;
+}
+
+body.dark #productsDropdown a {
+  color: #f0f0f0; /* light text in dark mode */
+}
+
+body.dark #productsDropdown a:hover {
+  color: #fff; /* brighter on hover in dark mode */
+}
+

@@ -1,0 +1,129 @@
+.main-content {
+  margin-left: 250px;
+  flex-grow: 1;
+  min-height: 100vh;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  height: 100vh;
+  background-color: #f8f9fa; /* light mode */
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+  z-index: 1000;
+  color: #212529; /* default color mode */
+}
+
+#cases-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.cases-col {
+  width: calc(20% - 0.5rem); /* 5 columns */
+  min-width: 150px;
+}
+
+.cases-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 0.5rem;
+  transition: transform 0.15s ease-in-out;
+  text-align: center;
+  height: 100%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.cases-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+}
+
+.cases-card img {
+  max-width: 100%;
+  height: 100px;
+  object-fit: contain;
+  margin-bottom: 0.5rem;
+}
+
+.cases-card h6 {
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+}
+
+.cases-card p {
+  font-size: 0.85rem;
+  margin-bottom: 0.4rem;
+}
+
+.cases-card .btn {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+/* Responsive Columns */
+@media (max-width: 1200px) {
+  .cases-col {
+    width: calc(25% - 1rem);
+  }
+}
+
+@media (max-width: 992px) {
+  .cases-col {
+    width: calc(33.333% - 1rem);
+  }
+}
+
+@media (max-width: 768px) {
+  .cases-col {
+    width: calc(50% - 1rem);
+  }
+}
+
+@media (max-width: 576px) {
+  .cases-col {
+    width: 100%;
+  }
+}
+
+/* Dark Mode */
+body.dark {
+  background-color: #121212;
+  color: #f1f1f1;
+}
+
+body.dark .cases-card {
+  background-color: #1e1e1e;
+  border-color: #333;
+  color: #f1f1f1;
+  box-shadow: 0 1px 3px rgba(255, 255, 255, 0.05);
+}
+
+body.dark .cases-card:hover {
+  box-shadow: 0 6px 12px rgba(255, 255, 255, 0.08);
+}
+
+body.dark .text-success {
+  color: #8fd19e !important;
+}
+
+body.dark .cases-card h6,
+body.dark .cases-card p {
+  color: #f1f1f1;
+}
+
+body.dark .cases-card .btn-primary {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+  color: #fff;
+}
+
+body.dark .cases-card .btn-primary:hover {
+  background-color: #2563eb;
+}

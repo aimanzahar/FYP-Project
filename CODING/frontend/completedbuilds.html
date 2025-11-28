@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Completed Builds</title>
+
+  <link rel="stylesheet" href="public/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="public/css/completedbuilds.css" />
+  <link rel="stylesheet" href="public/css/dropdown.css" />
+  <link rel="stylesheet" href="public/css/sidebar.css" /> 
+</head>
+
+<body>
+  <div class="app-grid">
+    
+    <div id="sidebar-container"></div>
+    <div id="dropdown-container"></div>
+    <main class="content">
+        <div class="container-fluid py-4">
+            <div class="row">
+            <!-- Sidebar Filters -->
+            <aside class="col-md-3 col-lg-2 mb-4">
+                <div class="card bg-dark text-white p-3 shadow-sm sticky-top" style="top: 80px;">
+                <h5 class="mb-3">Filters</h5>
+                
+                <div class="mb-3">
+                    <label class="form-label">Price</label>
+                    <input type="range" class="form-range" min="0" max="25000" id="priceRange">
+                    <div class="d-flex justify-content-between">
+                    <small>RM0</small><small>RM25,000</small>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Published</label>
+                    <select class="form-select form-select-sm bg-secondary text-white">
+                    <option>All</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">CPU Cooler Type</label>
+                    <div class="form-check">
+                    <input class="form-check-input" type="checkbox" checked> <label class="form-check-label">All</label>
+                    </div>
+                    <div class="form-check">
+                    <input class="form-check-input" type="checkbox"> <label class="form-check-label">Air Cooler</label>
+                    </div>
+                    <div class="form-check">
+                    <input class="form-check-input" type="checkbox"> <label class="form-check-label">Liquid Cooler</label>
+                    </div>
+                </div>
+                </div>
+            </aside>
+
+            <!-- Builds Grid -->
+            <section class="col-md-9 col-lg-10">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="mb-0">Completed Builds</h2>
+
+                <div class="d-flex gap-2">
+                    <select id="sortSelect" class="form-select form-select-sm bg-secondary text-white" style="width: 160px;">
+                    <option>Date Posted (Newest)</option>
+                    <option>Price (Lowest)</option>
+                    <option>Price (Highest)</option>
+                    </select>
+                    <input type="text" id="searchBuilds" class="form-control form-control-sm bg-dark text-white border-secondary" placeholder="Search Builds">
+                </div>
+                </div>
+                <div class="d-flex mb-3">
+                    <input type="text" id="buildNameInput" class="form-control bg-dark text-white border-secondary me-2" placeholder="Enter your build name" />
+                    <button id="addBuildBtn" class="btn btn-primary">Add Build</button>
+                </div>
+
+
+                <!-- Build cards grid -->
+                <div id="build-list" class="row g-4"></div>
+            </section>
+            </div>
+        </div>
+    </main>
+  </div> 
+ 
+  <script src="public/js/bootstrap.bundle.min.js"></script>
+  <script src="public/js/common.js"></script>
+
+    <script>
+        fetch("/sidebar.html")
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById("sidebar-container").innerHTML = html;
+        })
+        .catch(err => console.error("Failed to load sidebar:", err));
+    </script>
+    <script>
+        fetch("/api/builds")
+        .then(res => res.json())
+        .then(builds => {
+            const container = document.getElementById("build-list");
+            if (!builds.length) {
+            container.innerHTML = '<p class="text-center text-muted">No builds available.</p>';
+            return;
+            }
+
+            builds.forEach(b => {
+            container.innerHTML += `
+                <div class="col-sm-6 col-md-4 col-lg-3">
+                <div class="card shadow-sm h-100">
+                    <div class="ratio ratio-16x9">
+                    <img src="${b.image_url || 'public/images/default-build.jpg'}" class="card-img-top rounded-top" alt="${b.title}">
+                    </div>
+                    <div class="card-body">
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="public/images/user-icon.png" alt="User" width="20" height="20" class="me-2">
+                        <span class="text-primary small fw-bold">${b.username || "Anonymous"}</span>
+                    </div>
+                    <h5 class="card-title">${b.title}</h5>
+                    <div class="card-subtitle mb-2">${b.cpu_name || ""}</div>
+                    <div class="card-subtitle mb-3">${b.gpu_name || ""}</div>
+                    <div class="fw-bold mb-2">RM${b.total_price}</div>
+                    <div class="d-flex justify-content-between small text-muted">
+                        <div><i class="bi bi-heart"></i> ${b.likes || 0}</div>
+                        <div><i class="bi bi-chat"></i> ${b.comments || 0}</div>
+                    </div>
+                    </div>
+                </div>
+                </div>
+            `;
+            });
+        });
+    </script>
+    <script>
+    document.getElementById("addBuildBtn").addEventListener("click", async () => {
+    const buildName = document.getElementById("buildNameInput").value.trim();
+    if (!buildName) {
+        alert("Please enter a build name");
+        return;
+    }
+
+    const token = localStorage.getItem("token"); // ensure you saved the JWT after login
+    if (!token) {
+        alert("You must be logged in to add a build");
+        return;
+    }
+
+    try {
+        // Save build to DB
+        const saveRes = await fetch("/api/save-build", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            build_name: buildName,
+            cpus_id: 1,  // You can later replace these IDs with dynamic selections
+            gpus_id: 1,
+            motherboards_id: 1,
+            rams_id: 1,
+            cpucoolers_id: 1,
+            storages_id: 1,
+            cases_id: 1,
+            psus_id: 1
+        })
+        });
+
+        if (!saveRes.ok) {
+        const err = await saveRes.json();
+        throw new Error(err.message || "Failed to save build");
+        }
+
+        const saveData = await saveRes.json();
+        console.log("✅ Build saved:", saveData);
+
+        // Now fetch that build’s full details to display it
+        const res = await fetch(`/api/build/${encodeURIComponent(buildName)}`);
+        if (!res.ok) {
+        alert("Build saved but could not fetch details!");
+        return;
+        }
+
+        const b = await res.json();
+        const container = document.getElementById("build-list");
+
+        container.innerHTML += `
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <div class="card shadow-sm h-100">
+            <div class="ratio ratio-16x9">
+                <img src="public/images/default-build.jpg" class="card-img-top rounded-top" alt="${b.builds_name}">
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-2">
+                <img src="public/images/user-icon.png" alt="User" width="20" height="20" class="me-2">
+                <span class="text-primary small fw-bold">${b.username || "Anonymous"}</span>
+                </div>
+                <h5 class="card-title">${b.builds_name}</h5>
+                <div class="card-subtitle mb-1">${b.cpu_name || ""}</div>
+                <div class="card-subtitle mb-1">${b.gpu_name || ""}</div>
+                <div class="card-subtitle mb-1">${b.motherboard_name || ""}</div>
+                <div class="card-subtitle mb-1">${b.ram_name || ""}</div>
+                <div class="card-subtitle mb-1">${b.storage_name || ""}</div>
+                <div class="card-subtitle mb-1">${b.psu_name || ""}</div>
+                <div class="card-subtitle mb-3">${b.cooler_name || ""}</div>
+                <div class="fw-bold mb-2 text-success">Build Added!</div>
+            </div>
+            </div>
+        </div>
+        `;
+
+        alert("✅ Build added successfully!");
+        document.getElementById("buildNameInput").value = "";
+
+    } catch (error) {
+        console.error("Error saving build:", error);
+        alert("Error saving build: " + error.message);
+    }
+    });
+    </script>
+    <script src="public/js/bootstrap.bundle.min.js"></script>
+    <script src="public/js/common.js"></script>
+</body>
+</html>

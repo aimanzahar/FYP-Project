@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HardwareForge</title>
+    <link rel="stylesheet" href="public/css/bootstrap.min.css" />
+</head>
+<body>
+    <div class="d-flex">
+        <div id="sidebar-container"></div>
+
+        <div class="container mt-5">
+            <h1 class="text-center">Sign Up</h1>
+            <form id="signupForm" class="mt-4">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" required />
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="text" class="form-control" id="email" required />
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" required />
+                </div>
+                <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+            <div id="message" class="mb-3"></div>
+        </div>
+    </div>
+
+  <script>
+  document.getElementById('signupForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const username = document.getElementById('username').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      const messageDiv = document.getElementById('message');
+      messageDiv.textContent = '';
+
+      try {
+          const res = await fetch('http://localhost:3001/register', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ username, email, password }),
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+              messageDiv.textContent = data.message;
+              messageDiv.style.color = 'green';
+              window.location.href = 'login.html';
+          } else {
+              messageDiv.textContent = data.message || 'Failed to register.';
+              messageDiv.style.color = 'red';
+          }
+      } catch (error) {
+          messageDiv.textContent = 'Error connecting to server.';
+          messageDiv.style.color = 'red';
+      }
+  });
+  </script>
+
+  <script src="public/js/bootstrap.bundle.min.js"></script>
+  <script src="public/js/common.js"></script>
+</body>
+</html>

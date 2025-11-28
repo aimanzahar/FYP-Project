@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Build</title>
+  <link rel="stylesheet" href="public/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="public/css/build.css" />
+  <link rel="stylesheet" href="public/css/dropdown.css" />
+</head>
+<body class="dark">
+  <div class="wrapper d-flex">
+    <aside id="sidebar-container" class="sidebar"></aside>
+    <main class="main-content flex-grow-1 p-4">
+      <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold">Build Your PC</h1>
+        <p class="lead">Choose your components and build your dream PC.</p>
+      </div>
+
+      <div class="summary-container d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div class="d-flex flex-wrap align-items-center gap-3">
+          <div class="summary-box border rounded p-3 text-center">
+            <div id="total-price" class="fw-bold">Total Price: RM0.00</div>
+          </div>
+          <div class="summary-box border rounded p-3 text-center">
+            <div id="total-wattage" class="fw-bold">Estimated Wattage: 0W</div>
+          </div>
+          <div class="summary-box border rounded p-3 text-center">
+            <button id="checkCompatibilityBtn" class="btn btn-primary fw-semibold">
+              ⚙️ Check Compatibility
+            </button>
+          </div>
+        </div>
+
+        <div class="summary-box border rounded p-3 d-flex align-items-center gap-2">
+          <input type="text" id="buildName" class="form-control" placeholder="Build name..." style="max-width: 180px; border-radius: 8px;">
+          <button id="saveBuildBtn" class="btn btn-success fw-semibold">💾 Save</button>
+          <button id="myBuildsBtn" class="btn btn-secondary">My Builds</button>
+          <div id="saveStatus"></div>
+        </div>
+      </div>
+
+      <div id="compatibilityResult" class="text-muted mt-2"></div>
+
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <h5 class="card-title mb-4">Parts List</h5>
+
+          <div class="part-row d-flex justify-content-between align-items-start">
+            <div class="part-info">
+              <span>CPU</span>
+              <div id="selected-cpu" class="selected-part"></div>
+            </div>
+            <button class="btn btn-outline-primary btn-sm add-button">Add CPU</button>
+          </div>
+
+          <div class="part-row d-flex justify-content-between align-items-start">
+            <div class="part-info"><span>CPU Cooler</span><div id="selected-cpuCooler" class="selected-part"></div></div>
+            <button class="btn btn-outline-primary btn-sm add-button">Add CPU Cooler</button>
+          </div>
+
+          <div class="part-row d-flex justify-content-between align-items-start">
+            <div class="part-info"><span>Motherboard</span><div id="selected-mobo" class="selected-part"></div></div>
+            <button class="btn btn-outline-primary btn-sm add-button">Add Motherboard</button>
+          </div>
+
+          <div class="part-row d-flex justify-content-between align-items-start">
+            <div class="part-info"><span>RAM</span><div id="selected-ram" class="selected-part"></div></div>
+            <button class="btn btn-outline-primary btn-sm add-button">Add RAM</button>
+          </div>
+
+          <div class="part-row d-flex justify-content-between align-items-start">
+            <div class="part-info"><span>GPU</span><div id="selected-gpu" class="selected-part"></div></div>
+            <button class="btn btn-outline-primary btn-sm add-button">Add GPU</button>
+          </div>
+
+          <div class="part-row d-flex justify-content-between align-items-start">
+            <div class="part-info"><span>Storage</span><div id="selected-storage" class="selected-part"></div></div>
+            <button class="btn btn-outline-primary btn-sm add-button">Add Storage</button>
+          </div>
+
+          <div class="part-row d-flex justify-content-between align-items-start">
+            <div class="part-info"><span>Case</span><div id="selected-case" class="selected-part"></div></div>
+            <button class="btn btn-outline-primary btn-sm add-button">Add Case</button>
+          </div>
+
+          <div class="part-row d-flex justify-content-between align-items-start">
+            <div class="part-info"><span>Power Supply</span><div id="selected-psu" class="selected-part"></div></div>
+            <button class="btn btn-outline-primary btn-sm add-button">Add Power Supply</button>
+          </div>
+
+          <div class="pt-4 text-muted"><h6>Additional Parts</h6></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal fade" id="myBuildsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="myBuildsModalLabel">My Builds</h5>
+          <button type="button" class="btn-close close-button"></button>
+        </div>
+        <div class="modal-body" id="myBuildsModalBody">
+          <!-- Saved builds will be injected here -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="saveStatusModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="saveStatusModalLabel">Build Status</h5>
+          <button type="button" class="btn-close close-button"></button>
+        </div>
+        <div class="modal-body" id="saveStatusModalBody">
+          <!-- Status message will be injected here -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="Modal" class="modal d-none" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modal-title">Select a Component</h5>
+          <button type="button" class="btn-close close-button"></button>
+        </div>
+        <div class="modal-body">
+          <input type="text" id="component-search" class="form-control mb-3" placeholder="Search for a component..." />
+          <ul id="List" class="list-group"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- Compatibility Modal -->
+  <div id="compatibilityModal" class="modal fade" tabindex="-1" aria-labelledby="compatibilityModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="compatibilityModalLabel">Compatibility Check</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="compatibilityModalBody">
+          <!-- Compatibility issues will be injected here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="dropdown-container"></div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const modal = document.getElementById('Modal');
+      const modalTitle = document.getElementById('modal-title');
+      const listElement = document.getElementById('List');
+      const searchInput = document.getElementById('component-search');
+      const closeButton = document.querySelector('.close-button');
+      const addButtons = document.querySelectorAll('.add-button');
+      const totalPriceEl = document.getElementById('total-price');
+      const totalWattageEl = document.getElementById('total-wattage');
+      const checkCompatibilityBtn = document.getElementById("checkCompatibilityBtn");
+      const compatibilityResult = document.getElementById("compatibilityResult"); 
+      const saveBuildBtn = document.getElementById('saveBuildBtn');
+
+      displayUserBuildsModal();
+
+      function getUserStorageKey() {
+        const token = localStorage.getItem('token');
+        if (token) return `builds_${token}`; // JWT-based key
+        // Fallback for guest users
+        if (!localStorage.getItem('guestId')) {
+          localStorage.setItem('guestId', `guest_${Date.now()}`);
+        }
+        return `builds_${localStorage.getItem('guestId')}`;
+      }
+
+      
+      const divMap = {
+        CPU: 'selected-cpu', 'CPU Cooler': 'selected-cpuCooler',
+        Motherboard: 'selected-mobo', RAM: 'selected-ram',
+        GPU: 'selected-gpu', Storage: 'selected-storage',
+        Case: 'selected-case', 'Power Supply': 'selected-psu'
+      };
+      const keyMap = {
+        CPU: 'selectedCPU', 'CPU Cooler': 'selectedCpuCooler',
+        Motherboard: 'selectedMotherboard', RAM: 'selectedRAM',
+        GPU: 'selectedGPU', Storage: 'selectedStorage',
+        Case: 'selectedCase', 'Power Supply': 'selectedPSU'
+      };
+      const endpointMap = {
+        CPU: 'cpus', 'CPU Cooler': 'cpucoolers',
+        Motherboard: 'motherboards', RAM: 'rams',
+        GPU: 'gpus', Storage: 'storages',
+        Case: 'cases', 'Power Supply': 'psus'
+      };
+
+      function ensureNoResultsLi() {
+        let li = listElement.querySelector('li[data-no-results]');
+        if (!li) {
+          li = document.createElement('li');
+          li.className = 'list-group-item text-muted';
+          li.dataset.noResults = '1';
+          li.textContent = 'No results found';
+          li.style.display = 'none';
+          listElement.appendChild(li);
+        }
+        return li;
+      }
+
+      function applyFilter(query) {
+        let visible = 0;
+        listElement.querySelectorAll('li:not([data-no-results])').forEach(li => {
+          const show = (li.dataset.search || li.textContent || '').toLowerCase().includes(query);
+          li.style.display = show ? '' : 'none';
+          if (show) visible++;
+        });
+        ensureNoResultsLi().style.display = query && visible === 0 ? '' : 'none';
+      }
+
+      searchInput.addEventListener('input', () => applyFilter(searchInput.value.toLowerCase()));
+
+      function updateTotals() {
+        let totalPrice = 0, totalWattage = 0;
+        Object.values(keyMap).forEach(key => {
+          const item = JSON.parse(localStorage.getItem(key));
+          if (item) {
+            totalPrice += parseFloat(item.price) || 0;
+            totalWattage += parseFloat(item.wattage) || 0;
+          }
+        });
+        totalPriceEl.textContent = `Total Price: RM${totalPrice.toFixed(2)}`;
+        totalWattageEl.textContent = `Estimated Wattage: ${totalWattage}W`;
+
+      }
+      function updateCompatibilityButton() {
+        const selected = {
+          cpu: JSON.parse(localStorage.getItem("selectedCPU")),
+          motherboard: JSON.parse(localStorage.getItem("selectedMotherboard")),
+          ram: JSON.parse(localStorage.getItem("selectedRAM")),
+          gpu: JSON.parse(localStorage.getItem("selectedGPU")),
+          psu: JSON.parse(localStorage.getItem("selectedPSU")),
+          case: JSON.parse(localStorage.getItem("selectedCase")),
+          cooler: JSON.parse(localStorage.getItem("selectedCpuCooler"))
+        };
+
+        const issues = [];
+
+        if(selected.cpu && selected.motherboard && selected.motherboard.CPU && !selected.motherboard.CPU.includes(selected.cpu.socket))
+          issues.push('CPU socket mismatch');
+
+        if(selected.ram && selected.motherboard && selected.motherboard.memory && !selected.motherboard.memory.includes(selected.ram.memory_type))
+          issues.push('RAM type mismatch');
+
+        if(selected.psu){
+          const required = (parseInt(selected.cpu?.wattage)||0)+(parseInt(selected.gpu?.wattage)||0)+150;
+          if(parseInt(selected.psu.power||0)<required)
+            issues.push('PSU may be insufficient');
+        }
+
+        if(selected.case && selected.motherboard?.form_factor && selected.case.mainboard_support && !selected.case.mainboard_support.includes(selected.motherboard.form_factor))
+          issues.push('Case does not support motherboard');
+
+        if(selected.case && selected.gpu?.gpu_length && selected.case.gpu_length && parseInt(selected.gpu.gpu_length)>parseInt(selected.case.gpu_length))
+          issues.push('GPU length exceeds case limit');
+
+        if(selected.case && selected.cooler?.dimension && selected.case.cpuCooler_height && parseInt(selected.cooler.dimension)>parseInt(selected.case.cpuCooler_height))
+          issues.push('CPU cooler too tall');
+
+        // Update button
+        if (issues.length > 0) {
+          checkCompatibilityBtn.classList.remove('btn-primary');
+          checkCompatibilityBtn.classList.add('btn-danger');
+          checkCompatibilityBtn.innerHTML = '⚠️ Compatibility Issues';
+        } else {
+          checkCompatibilityBtn.classList.remove('btn-danger');
+          checkCompatibilityBtn.classList.add('btn-primary');
+          checkCompatibilityBtn.innerHTML = '⚙️ Check Compatibility';
+        }
+      }
+
+      function checkCompatibility() {
+        const selected = {
+          cpu: JSON.parse(localStorage.getItem("selectedCPU")),
+          motherboard: JSON.parse(localStorage.getItem("selectedMotherboard")),
+          ram: JSON.parse(localStorage.getItem("selectedRAM")),
+          gpu: JSON.parse(localStorage.getItem("selectedGPU")),
+          psu: JSON.parse(localStorage.getItem("selectedPSU")),
+          case: JSON.parse(localStorage.getItem("selectedCase")),
+          cooler: JSON.parse(localStorage.getItem("selectedCpuCooler"))
+        };
+
+        const issues = [];
+
+        if(selected.cpu && selected.motherboard && selected.motherboard.CPU && !selected.motherboard.CPU.includes(selected.cpu.socket))
+          issues.push(`❌ CPU socket (${selected.cpu.socket}) not compatible with motherboard (${selected.motherboard.CPU})`);
+
+        if(selected.ram && selected.motherboard && selected.motherboard.memory && !selected.motherboard.memory.includes(selected.ram.memory_type))
+          issues.push(`❌ RAM type (${selected.ram.memory_type}) not supported by motherboard (${selected.motherboard.memory})`);
+
+        if(selected.psu){
+          const required = (parseInt(selected.cpu?.wattage)||0)+(parseInt(selected.gpu?.wattage)||0)+150;
+          if(parseInt(selected.psu.power||0)<required)
+            issues.push(`❌ PSU power may be insufficient. Recommended ≥ ${required}W`);
+        }
+
+        if(selected.case && selected.motherboard?.form_factor && selected.case.mainboard_support && !selected.case.mainboard_support.includes(selected.motherboard.form_factor))
+          issues.push(`❌ Case does not support ${selected.motherboard.form_factor} motherboards`);
+
+        if(selected.case && selected.gpu?.gpu_length && selected.case.gpu_length && parseInt(selected.gpu.gpu_length)>parseInt(selected.case.gpu_length))
+          issues.push(`❌ GPU length exceeds case limit`);
+
+        if(selected.case && selected.cooler?.dimension && selected.case.cpuCooler_height && parseInt(selected.cooler.dimension)>parseInt(selected.case.cpuCooler_height))
+          issues.push(`❌ CPU cooler height exceeds case limit`);
+
+        // Update the modal body
+        const modalBody = document.getElementById("compatibilityModalBody");
+        modalBody.innerHTML = issues.length > 0 ? issues.map(i => `<p>${i}</p>`).join('') : '<p class="text-success">✅ All selected components are compatible!</p>';
+
+        // Change button appearance if errors exist
+        if (issues.length > 0) {
+          checkCompatibilityBtn.classList.remove('btn-primary');
+          checkCompatibilityBtn.classList.add('btn-danger');
+          checkCompatibilityBtn.innerHTML = '⚠️ Compatibility Issues';
+        } else {
+          checkCompatibilityBtn.classList.remove('btn-danger');
+          checkCompatibilityBtn.classList.add('btn-primary');
+          checkCompatibilityBtn.innerHTML = '⚙️ Check Compatibility';
+        }
+
+        // Show the modal
+        const compatibilityModal = new bootstrap.Modal(document.getElementById('compatibilityModal'));
+        compatibilityModal.show();
+      }
+
+      checkCompatibilityBtn.addEventListener('click', checkCompatibility);
+
+      addButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const componentType = btn.closest('.part-row').querySelector('span').textContent;
+          openModal(componentType);
+        });
+      });
+
+      closeButton.addEventListener('click', () => {
+        modal.classList.add('d-none');
+        modal.style.display = 'none';
+      });
+
+      async function openModal(componentType) {
+        modalTitle.textContent = `Select a ${componentType}`;
+        listElement.innerHTML = '<li class="list-group-item">Loading...</li>';
+        try {
+          const res = await fetch(`http://localhost:3001/api/${endpointMap[componentType]}`);
+          const data = await res.json();
+          listElement.innerHTML = '';
+          if (!Array.isArray(data) || data.length === 0) {
+            listElement.innerHTML = `<li class="list-group-item text-muted">No ${componentType}s available.</li>`;
+          } else {
+            data.forEach(item => {
+              const li = document.createElement('li');
+              li.className = 'list-group-item';
+              li.dataset.search = item.name.toLowerCase();
+              li.innerHTML = `<div class="d-flex justify-content-between align-items-center">
+                <div><strong>${item.name}</strong><div class="small">RM${parseFloat(item.price).toFixed(2)}</div></div>
+                <img src="${item.image_url||'public/images/placeholder.png'}" alt="${item.name}" style="width:50px;height:auto;" class="rounded">
+              </div>`;
+              li.addEventListener('click', () => {
+                const div = document.getElementById(divMap[componentType]);
+                div.innerHTML = `<div class="d-flex align-items-center mt-2">
+                  <img src="${item.image_url}" alt="${item.name}" style="width:60px;height:auto;" class="me-3 rounded">
+                  <div><div class="fw-bold">${item.name}</div><div class="small">Price: RM${parseFloat(item.price).toFixed(2)}</div></div>
+                  <button class="btn btn-sm btn-outline-danger ms-2" onclick="clearComponent('${componentType}')">&times;</button>
+                </div>`;
+                localStorage.setItem(keyMap[componentType], JSON.stringify(item));
+                updateTotals();
+                updateCompatibilityButton();
+                modal.classList.add('d-none');
+                modal.style.display = 'none';
+              });
+              listElement.appendChild(li);
+            });
+            ensureNoResultsLi();
+          }
+          searchInput.value = '';
+          applyFilter('');
+          modal.classList.remove('d-none');
+          modal.style.display = 'block';
+        } catch (err) {
+          console.error(err);
+          listElement.innerHTML = `<li class="list-group-item text-danger">Failed to load ${componentType} data.</li>`;
+        }
+      }
+
+      window.clearComponent = (componentType) => {
+        const key = keyMap[componentType];
+        const div = document.getElementById(divMap[componentType]);
+        if (key && div) {
+          localStorage.removeItem(key);
+          div.innerHTML = '';
+          updateTotals();
+          updateCompatibilityButton();
+        }
+      };
+
+      // Load saved components
+      Object.entries(keyMap).forEach(([label, key]) => {
+        const item = JSON.parse(localStorage.getItem(key));
+        if (item) {
+          const div = document.getElementById(divMap[label]);
+          div.innerHTML = `
+            <div class="d-flex align-items-center mt-2">
+              <img src="${item.image_url}" alt="${item.name}" style="width:60px;height:auto;" class="me-3 rounded">
+              <div><div class="fw-bold">${item.name}</div><div class="small">Price: RM${parseFloat(item.price).toFixed(2)}</div></div>
+              <button class="btn btn-sm btn-outline-danger ms-2" onclick="clearComponent('${label}')">&times;</button>
+            </div>
+          `;
+        }
+      });
+
+      updateTotals();
+      
+      saveBuildBtn.addEventListener('click', () => {
+        const buildName = document.getElementById('buildName').value.trim();
+        const modalBody = document.getElementById('saveStatusModalBody'); // <-- correct element
+
+        if (!buildName) {
+          modalBody.textContent = "⚠️ Please enter a build name.";
+          modalBody.className = "text-danger";
+        } else {
+          const storageKey = getUserStorageKey();
+
+          const buildData = {};
+          Object.entries(keyMap).forEach(([label, key]) => {
+            const item = JSON.parse(localStorage.getItem(key));
+            if (item) buildData[key] = item;
+          });
+
+          const builds = JSON.parse(localStorage.getItem(storageKey)) || [];
+          builds.push({ name: buildName, components: buildData, timestamp: Date.now() });
+          localStorage.setItem(storageKey, JSON.stringify(builds));
+
+          modalBody.textContent = "✅ Build saved locally!";
+          modalBody.className = "text-success";
+
+          displayUserBuildsModal(); // refresh build list
+          document.getElementById('buildName').value = ''; // optional: clear input
+        }
+
+        const saveModal = new bootstrap.Modal(document.getElementById('saveStatusModal'));
+        saveModal.show();
+      });
+
+
+      const myBuildsBtn = document.getElementById('myBuildsBtn');
+
+      function displayUserBuildsModal() {
+        const storageKey = getUserStorageKey();
+        const builds = JSON.parse(localStorage.getItem(storageKey)) || [];
+        const modalBody = document.getElementById('myBuildsModalBody');
+        modalBody.innerHTML = '';
+
+        if (builds.length === 0) {
+          modalBody.innerHTML = '<p class="text-muted">No builds saved yet.</p>';
+          return;
+        }
+
+        builds.forEach((build, index) => {
+          const div = document.createElement('div');
+          div.className = 'd-flex justify-content-between align-items-center mb-2';
+          div.innerHTML = `
+            <span style="cursor:pointer;" onclick="loadBuild(${index}); bootstrap.Modal.getInstance(document.getElementById('myBuildsModal')).hide();">${build.name}</span>
+            <button class="btn btn-sm btn-danger" onclick="deleteBuild(${index})">Delete</button>
+          `;
+          modalBody.appendChild(div);
+        });
+      }
+
+      // Open the modal when clicking the button
+      myBuildsBtn.addEventListener('click', () => {
+        displayUserBuildsModal();
+        const modal = new bootstrap.Modal(document.getElementById('myBuildsModal'));
+        modal.show();
+      });
+
+      function loadBuild(index) {
+        const storageKey = getUserStorageKey();
+        const builds = JSON.parse(localStorage.getItem(storageKey)) || [];
+        const build = builds[index];
+        if (!build) return;
+
+        // Load components into localStorage
+        Object.entries(build.components).forEach(([key, value]) => {
+          localStorage.setItem(key, JSON.stringify(value));
+        });
+
+        // Refresh UI
+        Object.entries(keyMap).forEach(([label, key]) => {
+          const item = JSON.parse(localStorage.getItem(key));
+          const div = document.getElementById(divMap[label]);
+          if (item && div) {
+            div.innerHTML = `
+              <div class="d-flex align-items-center mt-2">
+                <img src="${item.image_url}" alt="${item.name}" style="width:60px;height:auto;" class="me-3 rounded">
+                <div><div class="fw-bold">${item.name}</div><div class="small">Price: RM${parseFloat(item.price).toFixed(2)}</div></div>
+                <button class="btn btn-sm btn-outline-danger ms-2" onclick="clearComponent('${label}')">&times;</button>
+              </div>
+            `;
+          } else if (div) div.innerHTML = '';
+        });
+
+        updateTotals();
+        updateCompatibilityButton();
+      }
+
+      function deleteBuild(index) {
+        const storageKey = getUserStorageKey();
+        const builds = JSON.parse(localStorage.getItem(storageKey)) || [];
+        builds.splice(index, 1); // remove the build
+        localStorage.setItem(storageKey, JSON.stringify(builds));
+        displayUserBuildsModal(); // refresh the modal list
+      }
+
+      window.loadBuild = function(index) {
+        const storageKey = getUserStorageKey();
+        const builds = JSON.parse(localStorage.getItem(storageKey)) || [];
+        const build = builds[index];
+        if (!build) return;
+
+        // Load components into localStorage
+        Object.entries(build.components).forEach(([key, value]) => {
+          localStorage.setItem(key, JSON.stringify(value));
+        });
+
+        // Refresh UI
+        Object.entries(keyMap).forEach(([label, key]) => {
+          const item = JSON.parse(localStorage.getItem(key));
+          const div = document.getElementById(divMap[label]);
+          if (item && div) {
+            div.innerHTML = `
+              <div class="d-flex align-items-center mt-2">
+                <img src="${item.image_url}" alt="${item.name}" style="width:60px;height:auto;" class="me-3 rounded">
+                <div><div class="fw-bold">${item.name}</div><div class="small">Price: RM${parseFloat(item.price).toFixed(2)}</div></div>
+                <button class="btn btn-sm btn-outline-danger ms-2" onclick="clearComponent('${label}')">&times;</button>
+              </div>
+            `;
+          } else if (div) div.innerHTML = '';
+        });
+
+        updateTotals();
+        updateCompatibilityButton();
+      };
+
+      window.deleteBuild = function(index) {
+        const storageKey = getUserStorageKey();
+        const builds = JSON.parse(localStorage.getItem(storageKey)) || [];
+        builds.splice(index, 1); // remove the build
+        localStorage.setItem(storageKey, JSON.stringify(builds));
+        displayUserBuildsModal(); // refresh the modal list
+      };
+
+    });  
+  </script>
+  <script src="public/js/bootstrap.bundle.min.js"></script>
+  <script src="public/js/common.js"></script>
+</body>
+</html>

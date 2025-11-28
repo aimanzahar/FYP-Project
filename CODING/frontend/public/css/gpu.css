@@ -1,0 +1,112 @@
+.main-content {
+  margin-left: 250px;
+  flex-grow: 1;
+  min-height: 100vh;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  height: 100vh;
+  background-color: #f8f9fa; /* light mode */
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+  z-index: 1000;
+  color: #212529; /* default color mode */
+}
+
+#gpu-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem; /* smaller gap */
+}
+
+.gpu-col {
+  width: calc(20% - 0.5rem); /* 5 columns still */
+  min-width: 150px;
+}
+
+.gpu-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 0.5rem;
+  transition: transform 0.15s ease-in-out;
+  text-align: center;
+  height: 100%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.gpu-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+}
+
+.gpu-card img {
+  max-width: 100%;
+  height: 100px;
+  object-fit: contain;
+  margin-bottom: 0.5rem;
+}
+
+.gpu-card h6 {
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+}
+
+.gpu-card p {
+  font-size: 0.8rem;
+  margin-bottom: 0.3rem;
+}
+
+.gpu-card .btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+@media (max-width: 1200px) {
+  .gpu-col {
+    width: calc(25% - 0.5rem); /* 4 columns */
+  }
+}
+
+@media (max-width: 992px) {
+  .gpu-col {
+    width: calc(33.333% - 0.5rem); /* 3 columns */
+  }
+}
+
+@media (max-width: 768px) {
+  .gpu-col {
+    width: calc(50% - 0.5rem); /* 2 columns */
+  }
+}
+
+@media (max-width: 576px) {
+  .gpu-col {
+    width: 100%; /* full width on small screens */
+  }
+}
+
+/* Dark Mode */
+body.dark {
+  background-color: #121212;
+  color: #f1f1f1;
+}
+
+body.dark .gpu-card {
+  background-color: #1e1e1e;
+  border-color: #333;
+  color: #f1f1f1;
+  box-shadow: 0 1px 3px rgba(255, 255, 255, 0.05);
+}
+
+body.dark .gpu-card:hover {
+  box-shadow: 0 6px 12px rgba(255, 255, 255, 0.08);
+}
+
+body.dark .text-success {
+  color: #8fd19e !important;
+}

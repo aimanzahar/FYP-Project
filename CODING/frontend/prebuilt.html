@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Completed Builds</title>
+
+  <link rel="stylesheet" href="public/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="public/css/prebuilt.css" />
+  <link rel="stylesheet" href="public/css/dropdown.css" />
+  <link rel="stylesheet" href="public/css/sidebar.css" /> 
+</head>
+
+<body class="dark">
+  <div class="app-grid">
+    
+    <div id="sidebar-container"></div>
+
+    <main class="content">
+        <div class="container-fluid py-4">
+            <div class="row">
+            </div>
+        </div>
+    </main>
+  </div> 
+
+ 
+  <script src="public/js/bootstrap.bundle.min.js"></script>
+  <script src="public/js/common.js"></script>
+
+    <script>
+        fetch("/sidebar.html")
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById("sidebar-container").innerHTML = html;
+        })
+        .catch(err => console.error("Failed to load sidebar:", err));
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build Page Test</title>
+<link rel="stylesheet" href="public/css/bootstrap.min.css">
+<style>
+  body.dark-mode {
+    background-color: #121212;
+    color: white;
+  }
+  .total {
+    font-weight: bold;
+  }
+</style>
+</head>
+<body class="dark-mode">
+
+<h2>Select Components</h2>
+
+<select id="cpu">
+  <option value="">Select CPU</option>
+</select>
+
+<select id="gpu">
+  <option value="">Select GPU</option>
+</select>
+
+<select id="motherboard">
+  <option value="">Select Motherboard</option>
+</select>
+
+<select id="ram">
+  <option value="">Select RAM</option>
+</select>
+
+<h3 class="total">Total Price: $<span id="totalPrice">0</span></h3>
+<h3 class="total">Estimated Wattage: <span id="totalWatt">0</span>W</h3>
+
+<script>
+// Fetch components from your backend
+async function fetchComponents(endpoint) {
+  try {
+    const res = await fetch(endpoint);
+    if (!res.ok) throw new Error(`Failed to fetch ${endpoint}`);
+    return await res.json();
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+}
+
+// Populate select options
+function populateSelect(selectId, items) {
+  const select = document.getElementById(selectId);
+  items.forEach(item => {
+    const option = document.createElement('option');
+    option.value = item.id;
+    const price = item.price || 0;
+    const watt = item.wattage || 0;
+    option.textContent = `${item.name} ($${price}, ${watt}W)`;
+    option.dataset.price = price;
+    option.dataset.watt = watt;
+    select.appendChild(option);
+  });
+}
+
+// Update total price and wattage
+function updateTotals() {
+  const selects = ['cpu', 'gpu', 'motherboard', 'ram'];
+  let totalPrice = 0;
+  let totalWatt = 0;
+
+  selects.forEach(id => {
+    const select = document.getElementById(id);
+    const option = select.selectedOptions[0];
+    if (option && option.dataset.price) totalPrice += parseInt(option.dataset.price);
+    if (option && option.dataset.watt) totalWatt += parseInt(option.dataset.watt);
+  });
+
+  document.getElementById('totalPrice').textContent = totalPrice;
+  document.getElementById('totalWatt').textContent = totalWatt;
+
+  console.log('Total Price:', totalPrice, 'Total Wattage:', totalWatt);
+}
+
+// Fetch and populate all components
+async function init() {
+  const cpus = await fetchComponents('/api/cpus');
+  const gpus = await fetchComponents('/api/gpus');
+  const motherboards = await fetchComponents('/api/motherboards');
+  const rams = await fetchComponents('/api/rams');
+
+  populateSelect('cpu', cpus);
+  populateSelect('gpu', gpus);
+  populateSelect('motherboard', motherboards);
+  populateSelect('ram', rams);
+
+  // Add listeners
+  ['cpu', 'gpu', 'motherboard', 'ram'].forEach(id => {
+    document.getElementById(id).addEventListener('change', updateTotals);
+  });
+}
+
+init();
+</script>
+</body>
+</html>

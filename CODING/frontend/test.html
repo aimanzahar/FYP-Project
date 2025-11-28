@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Build</title>
+  <link rel="stylesheet" href="public/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="public/css/build.css" />
+  <link rel="stylesheet" href="public/css/dropdown.css" />
+</head>
+<body class="dark">
+  <div class="wrapper d-flex">
+    <aside id="sidebar-container" class="sidebar"></aside>
+    <main class="main-content flex-grow-1 p-4">
+      <div class="text-center mb-4">
+        <h1 class="display-6 fw-bold">Build Your PC</h1>
+        <p class="lead">Choose your components and build your dream PC.</p>
+      </div>
+      
+      <div class="build-wrapper border rounded p-3 mb-4">
+        <div class="build-info-wrapper d-flex align-items-center gap-3 flex-grow-1">
+          <div class="build-name-display d-flex align-items-center gap-2">
+            <span id="buildNameDisplay" class="fw-semibold build-name-text">New Build</span>
+            <button id="editBuildNameBtn" class="btn btn-sm btn-outline-secondary p-1 d-flex align-items-center"
+                    style="border-radius: 6px;">
+              ✏️
+            </button>
+          </div>
+          <div class="user-info fw-semibold">
+            <span id="username">Guest</span>
+          </div>
+          <div class="date-info small text-muted">
+            <span id="currentDate"></span>
+          </div>
+        </div>
+
+        <div class="summary-wrapper border rounded p-3 mb-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <div class="summary-item text-center flex-grow-1">
+            <div id="total-price" class="fw-bold small">Total Price: RM0.00</div>
+          </div>
+          <div class="summary-item text-center flex-grow-1">
+            <div id="total-wattage" class="fw-bold small">Estimated Wattage: 0W</div>
+          </div>
+          <div class="summary-item text-center flex-grow-1">
+            <button id="checkCompatibilityBtn" class="btn btn-primary btn-sm fw-semibold">⚙️ Check Compatibility</button>
+          </div>
+        </div>
+
+        <div id="compatibilityResult" class="text-muted small mb-3"></div>
+
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <h5 class="card-title mb-4">Parts List</h5>
+
+            <div class="part-row d-flex justify-content-between align-items-start">
+              <div class="part-info">
+                <span>CPU</span>
+                <div id="selected-cpu" class="selected-part"></div>
+              </div>
+              <button class="btn btn-outline-primary btn-sm add-button">Add CPU</button>
+            </div>
+
+            <div class="part-row d-flex justify-content-between align-items-start">
+              <div class="part-info"><span>CPU Cooler</span><div id="selected-cpuCooler" class="selected-part"></div></div>
+              <button class="btn btn-outline-primary btn-sm add-button">Add CPU Cooler</button>
+            </div>
+
+            <div class="part-row d-flex justify-content-between align-items-start">
+              <div class="part-info"><span>Motherboard</span><div id="selected-mobo" class="selected-part"></div></div>
+              <button class="btn btn-outline-primary btn-sm add-button">Add Motherboard</button>
+            </div>
+
+            <div class="part-row d-flex justify-content-between align-items-start">
+              <div class="part-info"><span>RAM</span><div id="selected-ram" class="selected-part"></div></div>
+              <button class="btn btn-outline-primary btn-sm add-button">Add RAM</button>
+            </div>
+
+            <div class="part-row d-flex justify-content-between align-items-start">
+              <div class="part-info"><span>GPU</span><div id="selected-gpu" class="selected-part"></div></div>
+              <button class="btn btn-outline-primary btn-sm add-button">Add GPU</button>
+            </div>
+
+            <div class="part-row d-flex justify-content-between align-items-start">
+              <div class="part-info"><span>Storage</span><div id="selected-storage" class="selected-part"></div></div>
+              <button class="btn btn-outline-primary btn-sm add-button">Add Storage</button>
+            </div>
+
+            <div class="part-row d-flex justify-content-between align-items-start">
+              <div class="part-info"><span>Case</span><div id="selected-case" class="selected-part"></div></div>
+              <button class="btn btn-outline-primary btn-sm add-button">Add Case</button>
+            </div>
+
+            <div class="part-row d-flex justify-content-between align-items-start">
+              <div class="part-info"><span>Power Supply</span><div id="selected-psu" class="selected-part"></div></div>
+              <button class="btn btn-outline-primary btn-sm add-button">Add Power Supply</button>
+            </div>
+
+            <div class="pt-4 text-muted"><h6>Additional Parts</h6></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Build Info Modal -->
+  <div id="buildInfoModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Build Information</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <label class="form-label fw-semibold">Build Name</label>
+          <input type="text" id="editBuildName" class="form-control mb-3" />
+
+          <label class="form-label fw-semibold">Build Description</label>
+          <textarea id="editBuildDescription" class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button id="saveBuildInfoBtn" class="btn btn-success">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal -->
+  <div id="Modal" class="modal d-none" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modal-title">Select a Component</h5>
+          <button type="button" class="btn-close close-button"></button>
+        </div>
+        <div class="modal-body">
+          <input type="text" id="component-search" class="form-control mb-3" placeholder="Search for a component..." />
+          <ul id="List" class="list-group"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- Compatibility Modal -->
+  <div id="compatibilityModal" class="modal fade" tabindex="-1" aria-labelledby="compatibilityModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="compatibilityModalLabel">Compatibility Check</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="compatibilityModalBody">
+          <!-- Compatibility issues will be injected here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="dropdown-container"></div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const modal = document.getElementById('Modal');
+      const modalTitle = document.getElementById('modal-title');
+      const listElement = document.getElementById('List');
+      const searchInput = document.getElementById('component-search');
+      const closeButton = document.querySelector('.close-button');
+      const addButtons = document.querySelectorAll('.add-button');
+      const totalPriceEl = document.getElementById('total-price');
+      const totalWattageEl = document.getElementById('total-wattage');
+      const checkCompatibilityBtn = document.getElementById("checkCompatibilityBtn");
+      const compatibilityResult = document.getElementById("compatibilityResult"); 
+
+      const usernameEl = document.getElementById('username');
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user && user.username) {
+        usernameEl.textContent = user.username;
+      }
+
+      const dateEl = document.getElementById('currentDate');
+      const today = new Date();
+      dateEl.textContent = today.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+
+      const editBuildNameBtn = document.getElementById('editBuildNameBtn');
+      const buildNameDisplay = document.getElementById('buildNameDisplay');
+      const editBuildName = document.getElementById('editBuildName');
+      const editBuildDescription = document.getElementById('editBuildDescription');
+      const saveBuildInfoBtn = document.getElementById('saveBuildInfoBtn');
+
+      let currentBuildId = localStorage.getItem('currentBuildId') || null; 
+      // You must store this ID when the build is created
+
+      // Open Modal + Load Existing Values
+      editBuildNameBtn.addEventListener('click', () => {
+        editBuildName.value = buildNameDisplay.textContent.trim();
+        editBuildDescription.value = localStorage.getItem('buildDescription') || "";
+
+        const modal = new bootstrap.Modal(document.getElementById('buildInfoModal'));
+        modal.show();
+      });
+
+      saveBuildInfoBtn.addEventListener('click', async () => {
+        const newName = editBuildName.value.trim();
+        const newDesc = editBuildDescription.value.trim();
+
+        if (newName === "") {
+          alert("Build name cannot be empty.");
+          return;
+        }
+
+        // Update UI immediately
+        buildNameDisplay.textContent = newName;
+
+        // Store locally
+        localStorage.setItem('buildName', newName);
+        localStorage.setItem('buildDescription', newDesc);
+
+        // Prepare JSON for backend
+        const body = {
+          build_id: currentBuildId,
+          name: newName,
+          description: newDesc
+        };
+
+        try {
+          const response = await fetch("http://localhost:3001/api/updateBuildInfo", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            alert("Build info updated!");
+          } else {
+            alert("Failed to update build info.");
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Error: Could not connect to server.");
+        }
+
+        // Close modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('buildInfoModal'));
+        modal.hide();
+      });
+      
+      const divMap = {
+        CPU: 'selected-cpu', 'CPU Cooler': 'selected-cpuCooler',
+        Motherboard: 'selected-mobo', RAM: 'selected-ram',
+        GPU: 'selected-gpu', Storage: 'selected-storage',
+        Case: 'selected-case', 'Power Supply': 'selected-psu'
+      };
+      const keyMap = {
+        CPU: 'selectedCPU', 'CPU Cooler': 'selectedCpuCooler',
+        Motherboard: 'selectedMotherboard', RAM: 'selectedRAM',
+        GPU: 'selectedGPU', Storage: 'selectedStorage',
+        Case: 'selectedCase', 'Power Supply': 'selectedPSU'
+      };
+      const endpointMap = {
+        CPU: 'cpus', 'CPU Cooler': 'cpucoolers',
+        Motherboard: 'motherboards', RAM: 'rams',
+        GPU: 'gpus', Storage: 'storages',
+        Case: 'cases', 'Power Supply': 'psus'
+      };
+
+      function ensureNoResultsLi() {
+        let li = listElement.querySelector('li[data-no-results]');
+        if (!li) {
+          li = document.createElement('li');
+          li.className = 'list-group-item text-muted';
+          li.dataset.noResults = '1';
+          li.textContent = 'No results found';
+          li.style.display = 'none';
+          listElement.appendChild(li);
+        }
+        return li;
+      }
+
+      function applyFilter(query) {
+        let visible = 0;
+        listElement.querySelectorAll('li:not([data-no-results])').forEach(li => {
+          const show = (li.dataset.search || li.textContent || '').toLowerCase().includes(query);
+          li.style.display = show ? '' : 'none';
+          if (show) visible++;
+        });
+        ensureNoResultsLi().style.display = query && visible === 0 ? '' : 'none';
+      }
+
+      searchInput.addEventListener('input', () => applyFilter(searchInput.value.toLowerCase()));
+
+      function updateTotals() {
+        let totalPrice = 0, totalWattage = 0;
+        Object.values(keyMap).forEach(key => {
+          const item = JSON.parse(localStorage.getItem(key));
+          if (item) {
+            totalPrice += parseFloat(item.price) || 0;
+            totalWattage += parseFloat(item.wattage) || 0;
+          }
+        });
+        totalPriceEl.textContent = `Total Price: RM${totalPrice.toFixed(2)}`;
+        totalWattageEl.textContent = `Estimated Wattage: ${totalWattage}W`;
+
+      }
+      function updateCompatibilityButton() {
+        const selected = {
+          cpu: JSON.parse(localStorage.getItem("selectedCPU")),
+          motherboard: JSON.parse(localStorage.getItem("selectedMotherboard")),
+          ram: JSON.parse(localStorage.getItem("selectedRAM")),
+          gpu: JSON.parse(localStorage.getItem("selectedGPU")),
+          psu: JSON.parse(localStorage.getItem("selectedPSU")),
+          case: JSON.parse(localStorage.getItem("selectedCase")),
+          cooler: JSON.parse(localStorage.getItem("selectedCpuCooler"))
+        };
+
+        const issues = [];
+
+        if(selected.cpu && selected.motherboard && selected.motherboard.CPU && !selected.motherboard.CPU.includes(selected.cpu.socket))
+          issues.push('CPU socket mismatch');
+
+        if(selected.ram && selected.motherboard && selected.motherboard.memory && !selected.motherboard.memory.includes(selected.ram.memory_type))
+          issues.push('RAM type mismatch');
+
+        if(selected.psu){
+          const required = (parseInt(selected.cpu?.wattage)||0)+(parseInt(selected.gpu?.wattage)||0)+150;
+          if(parseInt(selected.psu.power||0)<required)
+            issues.push('PSU may be insufficient');
+        }
+
+        if(selected.case && selected.motherboard?.form_factor && selected.case.mainboard_support && !selected.case.mainboard_support.includes(selected.motherboard.form_factor))
+          issues.push('Case does not support motherboard');
+
+        if(selected.case && selected.gpu?.gpu_length && selected.case.gpu_length && parseInt(selected.gpu.gpu_length)>parseInt(selected.case.gpu_length))
+          issues.push('GPU length exceeds case limit');
+
+        if(selected.case && selected.cooler?.dimension && selected.case.cpuCooler_height && parseInt(selected.cooler.dimension)>parseInt(selected.case.cpuCooler_height))
+          issues.push('CPU cooler too tall');
+
+        // Update button
+        if (issues.length > 0) {
+          checkCompatibilityBtn.classList.remove('btn-primary');
+          checkCompatibilityBtn.classList.add('btn-danger');
+          checkCompatibilityBtn.innerHTML = '⚠️ Compatibility Issues';
+        } else {
+          checkCompatibilityBtn.classList.remove('btn-danger');
+          checkCompatibilityBtn.classList.add('btn-primary');
+          checkCompatibilityBtn.innerHTML = '⚙️ Check Compatibility';
+        }
+      }
+
+      function checkCompatibility() {
+        const selected = {
+          cpu: JSON.parse(localStorage.getItem("selectedCPU")),
+          motherboard: JSON.parse(localStorage.getItem("selectedMotherboard")),
+          ram: JSON.parse(localStorage.getItem("selectedRAM")),
+          gpu: JSON.parse(localStorage.getItem("selectedGPU")),
+          psu: JSON.parse(localStorage.getItem("selectedPSU")),
+          case: JSON.parse(localStorage.getItem("selectedCase")),
+          cooler: JSON.parse(localStorage.getItem("selectedCpuCooler"))
+        };
+
+        const issues = [];
+
+        if(selected.cpu && selected.motherboard && selected.motherboard.CPU && !selected.motherboard.CPU.includes(selected.cpu.socket))
+          issues.push(`❌ CPU socket (${selected.cpu.socket}) not compatible with motherboard (${selected.motherboard.CPU})`);
+
+        if(selected.ram && selected.motherboard && selected.motherboard.memory && !selected.motherboard.memory.includes(selected.ram.memory_type))
+          issues.push(`❌ RAM type (${selected.ram.memory_type}) not supported by motherboard (${selected.motherboard.memory})`);
+
+        if(selected.psu){
+          const required = (parseInt(selected.cpu?.wattage)||0)+(parseInt(selected.gpu?.wattage)||0)+150;
+          if(parseInt(selected.psu.power||0)<required)
+            issues.push(`❌ PSU power may be insufficient. Recommended ≥ ${required}W`);
+        }
+
+        if(selected.case && selected.motherboard?.form_factor && selected.case.mainboard_support && !selected.case.mainboard_support.includes(selected.motherboard.form_factor))
+          issues.push(`❌ Case does not support ${selected.motherboard.form_factor} motherboards`);
+
+        if(selected.case && selected.gpu?.gpu_length && selected.case.gpu_length && parseInt(selected.gpu.gpu_length)>parseInt(selected.case.gpu_length))
+          issues.push(`❌ GPU length exceeds case limit`);
+
+        if(selected.case && selected.cooler?.dimension && selected.case.cpuCooler_height && parseInt(selected.cooler.dimension)>parseInt(selected.case.cpuCooler_height))
+          issues.push(`❌ CPU cooler height exceeds case limit`);
+
+        // Update the modal body
+        const modalBody = document.getElementById("compatibilityModalBody");
+        modalBody.innerHTML = issues.length > 0 ? issues.map(i => `<p>${i}</p>`).join('') : '<p class="text-success">✅ All selected components are compatible!</p>';
+
+        // Change button appearance if errors exist
+        if (issues.length > 0) {
+          checkCompatibilityBtn.classList.remove('btn-primary');
+          checkCompatibilityBtn.classList.add('btn-danger');
+          checkCompatibilityBtn.innerHTML = '⚠️ Compatibility Issues';
+        } else {
+          checkCompatibilityBtn.classList.remove('btn-danger');
+          checkCompatibilityBtn.classList.add('btn-primary');
+          checkCompatibilityBtn.innerHTML = '⚙️ Check Compatibility';
+        }
+
+        // Show the modal
+        const compatibilityModal = new bootstrap.Modal(document.getElementById('compatibilityModal'));
+        compatibilityModal.show();
+      }
+
+      checkCompatibilityBtn.addEventListener('click', checkCompatibility);
+
+      addButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const componentType = btn.closest('.part-row').querySelector('span').textContent;
+          openModal(componentType);
+        });
+      });
+
+      closeButton.addEventListener('click', () => {
+        modal.classList.add('d-none');
+        modal.style.display = 'none';
+      });
+
+      async function openModal(componentType) {
+        modalTitle.textContent = `Select a ${componentType}`;
+        listElement.innerHTML = '<li class="list-group-item">Loading...</li>';
+        try {
+          const res = await fetch(`http://localhost:3001/api/${endpointMap[componentType]}`);
+          const data = await res.json();
+          listElement.innerHTML = '';
+          if (!Array.isArray(data) || data.length === 0) {
+            listElement.innerHTML = `<li class="list-group-item text-muted">No ${componentType}s available.</li>`;
+          } else {
+            data.forEach(item => {
+              const li = document.createElement('li');
+              li.className = 'list-group-item';
+              li.dataset.search = item.name.toLowerCase();
+              li.innerHTML = `<div class="d-flex justify-content-between align-items-center">
+                <div><strong>${item.name}</strong><div class="small">RM${parseFloat(item.price).toFixed(2)}</div></div>
+                <img src="${item.image_url||'public/images/placeholder.png'}" alt="${item.name}" style="width:50px;height:auto;" class="rounded">
+              </div>`;
+              li.addEventListener('click', () => {
+                const div = document.getElementById(divMap[componentType]);
+                div.innerHTML = `<div class="d-flex align-items-center mt-2">
+                  <img src="${item.image_url}" alt="${item.name}" style="width:60px;height:auto;" class="me-3 rounded">
+                  <div><div class="fw-bold">${item.name}</div><div class="small">Price: RM${parseFloat(item.price).toFixed(2)}</div></div>
+                  <button class="btn btn-sm btn-outline-danger ms-2" onclick="clearComponent('${componentType}')">&times;</button>
+                </div>`;
+                localStorage.setItem(keyMap[componentType], JSON.stringify(item));
+                updateTotals();
+                updateCompatibilityButton();
+                modal.classList.add('d-none');
+                modal.style.display = 'none';
+              });
+              listElement.appendChild(li);
+            });
+            ensureNoResultsLi();
+          }
+          searchInput.value = '';
+          applyFilter('');
+          modal.classList.remove('d-none');
+          modal.style.display = 'block';
+        } catch (err) {
+          console.error(err);
+          listElement.innerHTML = `<li class="list-group-item text-danger">Failed to load ${componentType} data.</li>`;
+        }
+      }
+
+      window.clearComponent = (componentType) => {
+        const key = keyMap[componentType];
+        const div = document.getElementById(divMap[componentType]);
+        if (key && div) {
+          localStorage.removeItem(key);
+          div.innerHTML = '';
+          updateTotals();
+          updateCompatibilityButton();
+        }
+      };
+
+      // Load saved components
+      Object.entries(keyMap).forEach(([label, key]) => {
+        const item = JSON.parse(localStorage.getItem(key));
+        if (item) {
+          const div = document.getElementById(divMap[label]);
+          div.innerHTML = `
+            <div class="d-flex align-items-center mt-2">
+              <img src="${item.image_url}" alt="${item.name}" style="width:60px;height:auto;" class="me-3 rounded">
+              <div><div class="fw-bold">${item.name}</div><div class="small">Price: RM${parseFloat(item.price).toFixed(2)}</div></div>
+              <button class="btn btn-sm btn-outline-danger ms-2" onclick="clearComponent('${label}')">&times;</button>
+            </div>
+          `;
+        }
+      });
+      updateTotals();
+
+
+  });  
+  </script>
+  <script src="public/js/bootstrap.bundle.min.js"></script>
+  <script src="public/js/common.js"></script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+body {
+    font-family: "Segoe UI", sans-serif;
+    transition: background-color 0.3s, color 0.3s;
+    margin: 0;
+}
+
+.wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  height: 100vh;
+  background-color: #f8f9fa; /* light mode */
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+  z-index: 1000;
+  color: #212529; /* default text color */
+}
+
+.main-content {
+    margin-left: 250px;
+    padding: 20px;
+    flex: 1;
+    min-height: 100vh;
+    box-sizing: border-box;
+    overflow-y: auto;
+    transition: color 0.3s;
+}
+
+/* ===== Cards & Threads ===== */
+.card, .thread-card {
+    border-radius: 0.5rem;
+    padding: 1rem;
+    border: 1px solid;
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+.thread-card {
+    margin-bottom: 0.5rem;
+    padding: 0.75rem;
+    cursor: pointer;
+}
+
+.thread-card:hover {
+    opacity: 0.9;
+}
+
+/* ===== Text & Labels ===== */
+h1, h4, h5, h3, h6,
+.form-label, .card-title, p, small {
+    transition: color 0.3s;
+}
+
+.text-secondary { color: #000000; }
+.small-muted { color: #000000; }
+
+/* ===== Forms & Buttons ===== */
+.form-control, .btn {
+    border-radius: 0.5rem;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-outline-light {
+    border-width: 1px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* ===== Light Mode ===== */
+body.light {
+    background-color: #fff;
+    color: #212529;
+}
+
+body.light .text-light {
+    color: #212529 !important; /* dark text for light mode */
+}
+
+body.light .card,
+body.light .thread-card {
+    background-color: #f8f9fa;
+    border-color: #ddd;
+    color: #212529;
+}
+
+body.light .thread-card:hover {
+    background-color: #e9ecef;
+}
+
+body.light .form-label,
+body.light .card-title,
+body.light h1,
+body.light h4,
+body.light p,
+body.light small {
+    color: #000000;
+}
+
+body.light .text-secondary { color: #555; }
+body.light .small-muted { color: #888; }
+
+body.light .btn-outline-light {
+    color: #212529;
+    border-color: #444;
+}
+
+body.light .btn-outline-light:hover {
+    background-color: #ddd;
+    color: #212529;
+}
+
+/* ===== Dark Mode ===== */
+body.dark {
+    background-color: #121212;
+    color: #ddd;
+}
+
+body.dark .text-light {
+    color: #fff !important; /* white text for dark mode */
+}
+
+body.dark .card,
+body.dark .thread-card {
+    background-color: #1a1a1a;
+    border-color: #333;
+    color: #ddd;
+}
+
+body.dark .thread-card:hover {
+    background-color: #1e1e1e;
+}
+
+body.dark .form-label,
+body.dark .card-title,
+body.dark h1,
+body.dark h4,
+body.dark p,
+body.dark small {
+    color: #fff;
+}
+
+body.dark .text-secondary { color: #ccc; }
+body.dark .small-muted { color: #fff; }
+
+body.dark .btn-outline-light {
+    color: #ddd;
+    border-color: #444;
+}
+
+body.dark .btn-outline-light:hover {
+    background-color: #333;
+    color: #fff;
+}

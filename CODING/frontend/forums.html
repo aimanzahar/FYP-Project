@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HardwareForge Community Forum</title>
+  <link rel="stylesheet" href="public/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="public/css/forums.css" />
+  <link rel="stylesheet" href="public/css/dropdown.css" />
+</head>
+<body class="dark">
+  <div class="wrapper">
+    <aside id="sidebar-container" class="sidebar"></aside>
+    <main class="main-content">
+      <div class="flex-grow-1 p-4">
+        <div id="dropdown-container"></div>
+
+        <div class="container">
+          <h1 class="mb-4 text-center text-light">HardwareForge Forum</h1>
+          <p class="text-center small-muted">Discuss PC builds, troubleshooting, and share your knowledge.</p>
+
+          <!-- New Thread Form -->
+          <div class="card shadow mb-4">
+            <div class="card-body">
+              <h5 class="card-title mb-3">Start a New Discussion</h5>
+              <form id="newThreadForm" autocomplete="off">
+                <div class="mb-3">
+                  <label for="threadTitle" class="form-label">Title</label>
+                  <input type="text" class="form-control" id="threadTitle" placeholder="Enter a title" required>
+                </div>
+                <div class="mb-3">
+                  <label for="threadContent" class="form-label">Message</label>
+                  <textarea class="form-control" id="threadContent" rows="4" placeholder="Write your discussion here..." required></textarea>
+                </div>
+                <button id="submitThreadBtn" type="submit" class="btn btn-primary w-100">Post Thread</button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Threads Section -->
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="mb-0 text-light">Recent Discussions</h4>
+            <div>
+              <button class="btn btn-outline-light btn-sm me-2" id="refreshThreads">Refresh</button>
+              <button class="btn btn-outline-light btn-sm" id="newestFirstToggle">Newest</button>
+            </div>
+          </div>
+
+          <div id="threadList" class="list-group">
+            <p class="text-center text-muted">Loading threads...</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="public/js/bootstrap.bundle.min.js"></script>
+  <script src="public/js/common.js"></script>
+  <script>
+    // Use relative path so it works on same origin and avoids CORS issues when served together.
+    const API_BASE = '/api';
+    const threadListEl = document.getElementById('threadList');
+    const newThreadForm = document.getElementById('newThreadForm');
+    const submitBtn = document.getElementById('submitThreadBtn');
+    const newestFirstToggle = document.getElementById('newestFirstToggle');
+
+    // Simple escape for DOM insertion (prevents basic XSS)
+    function escapeHtml(str = '') {
+      return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    // Load threads (option to sort newest/oldest)
+    let newestFirst = true;
+    async function loadThreads() {
+      threadListEl.innerHTML = '<p class="text-center text-muted">Loading threads...</p>';
+      try {
+        const res = await fetch(`${API_BASE}/threads`);
+        if (!res.ok) {
+          const body = await res.text().catch(() => null);
+          console.error('Non-200 response from /threads', res.status, body);
+          threadListEl.innerHTML = `<p class="text-danger text-center">Failed to load threads (status ${res.status}).</p>`;
+          return;
+        }
+        const threads = await res.json();
+
+        if (!Array.isArray(threads) || threads.length === 0) {
+          threadListEl.innerHTML = '<p class="text-center text-muted">No discussions yet. Be the first to start one!</p>';
+          return;
+        }
+
+        const sorted = threads.slice().sort((a, b) => {
+          const da = new Date(a.created_at).getTime();
+          const db = new Date(b.created_at).getTime();
+          return newestFirst ? db - da : da - db;
+        });
+
+        threadListEl.innerHTML = sorted.map(t => {
+          const title = escapeHtml(t.title);
+          const contentPreview = escapeHtml((t.content || '').slice(0, 180));
+          const username = escapeHtml(t.Username || t.username || 'Unknown');
+          const created = t.created_at ? new Date(t.created_at).toLocaleString() : 'Unknown time';
+          // Use data-id attribute rather than inline onclick for better separation
+          return `
+            <div class="list-group-item thread-card mb-2 p-3" data-id="${t.id}">
+              <div class="d-flex w-100 justify-content-between align-items-center">
+                <h5 class="mb-1 text-light">${title}</h5>
+                <small class="small-muted">${created}</small>
+              </div>
+              <p class="mb-1 text-secondary">${contentPreview}${(t.content || '').length > 180 ? '...' : ''}</p>
+              <small class="small-muted">Posted by <strong>${username}</strong></small>
+            </div>
+          `;
+        }).join('');
+
+        // Attach click listeners
+        document.querySelectorAll('.thread-card').forEach(card => {
+          card.addEventListener('click', () => {
+            const id = card.getAttribute('data-id');
+            if (id) window.location.href = `thread.html?id=${id}`;
+          });
+        });
+
+      } catch (err) {
+        console.error('Error fetching threads:', err);
+        threadListEl.innerHTML = '<p class="text-danger text-center">Failed to load threads (network error).</p>';
+      }
+    }
+
+    // Submit new thread
+    newThreadForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const token = localStorage.getItem('token');
+      if (!token) {
+        // Disable the form
+        newThreadForm.querySelectorAll('input, textarea, button').forEach(el => el.disabled = true);
+
+        // Show message
+        const alertEl = document.createElement('p');
+        alertEl.className = 'text-danger';
+        alertEl.textContent = 'You must be logged in to post a thread.';
+        newThreadForm.prepend(alertEl);
+      }
+
+      const title = document.getElementById('threadTitle').value.trim();
+      const content = document.getElementById('threadContent').value.trim();
+
+      if (!title || !content) {
+        return alert('Please fill in both title and message.');
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Posting...';
+
+      try {
+        const res = await fetch(`${API_BASE}/threads`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ title, content })
+        });
+
+        const body = await res.json().catch(() => null);
+
+        if (!res.ok) {
+          alert(body && body.error ? 'Error: ' + body.error : 'Failed to create thread.');
+        } else {
+          newThreadForm.reset();
+          await loadThreads(); // refresh the thread list
+        }
+      } catch (err) {
+        console.error('Network error while creating thread:', err);
+        alert('Network error while creating thread.');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Post Thread';
+      }
+    });
+
+
+    // Toggle sort
+    newestFirstToggle.addEventListener('click', () => {
+      newestFirst = !newestFirst;
+      newestFirstToggle.textContent = newestFirst ? 'Newest' : 'Oldest';
+      loadThreads();
+    });
+
+    // Manual refresh
+    document.getElementById('refreshThreads').addEventListener('click', loadThreads);
+
+    // initial load
+    loadThreads();
+  </script>
+</body>
+</html>

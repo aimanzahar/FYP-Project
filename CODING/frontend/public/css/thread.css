@@ -1,0 +1,186 @@
+body {
+    font-family: "Segoe UI", sans-serif;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 250px;
+  height: 100vh;
+  background-color: #f8f9fa; /* light mode */
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+  z-index: 1000;
+  color: #212529; /* default text color */
+}
+
+.main-content {
+    margin-left: 250px;
+    padding: 20px;
+    flex: 1;
+    min-height: 100vh;
+    box-sizing: border-box;
+    transition: color 0.3s;
+}
+
+/* ===== Cards & Reply Styling ===== */
+.card,
+.reply-card {
+    border-radius: 0.5rem;
+    border: 1px solid;
+    padding: 1rem;
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+.reply-card {
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    cursor: default;
+}
+
+.reply-card:hover {
+    opacity: 0.9;
+}
+
+/* ===== Forms & Buttons ===== */
+.form-control,
+.btn {
+    border-radius: 0.5rem;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-outline-light {
+    border-width: 1px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.btn-outline-light:hover {
+    opacity: 0.9;
+}
+
+/* ===== Text Styling ===== */
+.card-title,
+.form-label,
+h1, h4, h5, h6 {
+    transition: color 0.3s;
+}
+
+.small-muted,
+.text-secondary {
+    transition: color 0.3s;
+}
+
+/* ===== Light Mode ===== */
+body.light {
+    background-color: #fff;
+    color: #212529;
+}
+
+body.light .sidebar {
+    background-color: #f8f9fa;
+    color: #212529;
+    border-right: 1px solid #ddd;
+}
+
+body.light .card,
+body.light .reply-card {
+    background-color: #f8f9fa;
+    border-color: #ddd;
+    color: #212529;
+}
+
+body.light .reply-card:hover {
+    background-color: #e9ecef;
+}
+
+body.light .card-title,
+body.light .form-label,
+body.light h1,
+body.light h4,
+body.light h5,
+body.light h6 {
+    color: #212529;
+}
+
+body.light .text-light {
+    color: #212529;
+}
+
+body.light .text-secondary {
+    color: #555;
+}
+
+body.light .small-muted {
+    color: #888;
+}
+
+body.light .btn-outline-light {
+    color: #212529;
+    border-color: #444;
+}
+
+body.light .btn-outline-light:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+/* ===== Dark Mode ===== */
+body.dark {
+    background-color: #121212;
+    color: #ddd;
+}
+
+body.dark .sidebar {
+    background-color: #1a1a1a;
+    color: #ddd;
+    border-right: 1px solid #333;
+}
+
+body.dark .card,
+body.dark .reply-card {
+    background-color: #1a1a1a;
+    border-color: #333;
+    color: #ddd;
+}
+
+body.dark .reply-card:hover {
+    background-color: #1e1e1e;
+}
+
+body.dark .card-title,
+body.dark .form-label,
+body.dark h1,
+body.dark h4,
+body.dark h5,
+body.dark h6 {
+    color: #fff;
+}
+
+body.dark .text-light {
+    color: #fff;
+}
+
+body.dark .text-secondary {
+    color: #ccc;
+}
+
+body.dark .small-muted {
+    color: #9aa0a6;
+}
+
+body.dark .btn-outline-light {
+    color: #ddd;
+    border-color: #444;
+}
+
+body.dark .btn-outline-light:hover {
+    background-color: #333;
+    color: #fff;
+}

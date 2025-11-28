@@ -1,0 +1,186 @@
+/* Layout wrapper */
+.wrapper {
+  display: flex;
+  min-height: 100vh;
+  font-size: 0.9rem;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 220px;
+  height: 100vh;
+  background-color: #f8f9fa;
+  border-right: 1px solid #ddd;
+  overflow-y: auto;
+  z-index: 1000;
+  color: #212529;
+}
+
+/* Main content area */
+.main-content {
+  margin-left: 220px;
+  max-width: 900px;
+  padding: 15px;
+  flex: 1;
+  min-height: 100vh;
+  box-sizing: border-box;
+  overflow-y: auto;
+  color: #212529;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Build wrapper (dark box) */
+.build-wrapper {
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+}
+
+.build-name-text {
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+#editBuildNameBtn {
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+/* =============================== */
+/*        HEADER ROW STYLING       */
+/* =============================== */
+
+/* Build info top-left area */
+.build-info-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+
+  /* ⭐ Added spacing you wanted */
+  margin-bottom: 1rem;
+}
+
+.build-name-input input {
+  max-width: 140px;
+  border-radius: 6px;
+}
+
+.user-info,
+.date-info {
+  font-weight: 600;
+}
+
+/* =============================== */
+/*        SUMMARY WRAPPER          */
+/* =============================== */
+.summary-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem; /* Slightly bigger space between summary items */
+  align-items: center;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 0.8rem;
+  background-color: #1a1a1a;
+}
+
+.summary-item {
+  text-align: center;
+  flex-grow: 1;
+  min-width: 140px;
+}
+
+/* =============================== */
+/*             Cards               */
+/* =============================== */
+.card-body {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.card-title {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.part-row {
+  padding: 0.35rem 0;
+  border-bottom: 1px solid #333;
+  font-size: 0.85rem;
+}
+
+.part-row:last-child {
+  border-bottom: none;
+}
+
+.part-info span {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.selected-part {
+  margin-top: 0.25rem;
+}
+
+.selected-part img {
+  width: 45px;
+  height: auto;
+}
+
+.add-button {
+  padding: 0.2rem 0.4rem;
+  font-size: 0.75rem;
+}
+
+/* Compatibility modal */
+#compatibilityResult {
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.modal-content {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+  font-size: 0.85rem;
+}
+
+.modal-header .btn-close {
+  filter: invert(1);
+}
+
+
+@media (max-width: 768px) {
+  .wrapper {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #333;
+    flex-direction: row;
+    overflow-x: auto;
+  }
+
+  .sidebar .nav {
+    flex-direction: row;
+  }
+
+  .sidebar .nav-item + .nav-item {
+    margin-top: 0;
+    margin-left: 0.5rem;
+  }
+
+  .main-content {
+    padding: 0.5rem;
+    margin-left: 0;
+  }
+}

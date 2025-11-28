@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thread - HardwareForge</title>
+  <link rel="stylesheet" href="public/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="public/css/thread.css" />
+</head>
+<body class="dark">
+    <div class="wrapper">
+    <aside id="sidebar-container" class="sidebar"></aside>
+    <main class="main-content">
+        <div class="container my-5">
+        <a href="forums.html" class="btn btn-outline-light mb-3">← Back to Forum</a>
+
+        <!-- Thread content -->
+        <div id="threadContentCard" class="card mb-4 p-3">
+            <h3 id="threadTitle"></h3>
+            <p id="threadMessage"></p>
+            <small class="small-muted" id="threadAuthor"></small>
+        </div>
+
+        <!-- Replies -->
+        <h5 class="text-light">Replies</h5>
+        <div id="repliesList" class="mb-4">
+            <p class="text-center text-muted">Loading replies...</p>
+        </div>
+
+        <!-- Reply form -->
+        <div class="card p-3">
+            <h6 class="mb-3">Post a Reply</h6>
+            <form id="replyForm" autocomplete="off">
+            <div class="mb-3">
+                <textarea id="replyContent" class="form-control" rows="3" placeholder="Write your reply..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Post Reply</button>
+            </form>
+        </div>
+        </div>
+    </main>
+    </div>
+    <div id="dropdown-container"></div>
+  <script>
+    const API_BASE = '/api';
+    const urlParams = new URLSearchParams(window.location.search);
+    const threadId = urlParams.get('id');
+
+    const threadTitleEl = document.getElementById('threadTitle');
+    const threadMessageEl = document.getElementById('threadMessage');
+    const threadAuthorEl = document.getElementById('threadAuthor');
+    const repliesListEl = document.getElementById('repliesList');
+    const replyForm = document.getElementById('replyForm');
+    const replyContentEl = document.getElementById('replyContent');
+
+    if (!threadId) {
+      repliesListEl.innerHTML = '<p class="text-danger">Thread not found.</p>';
+    }
+
+    function escapeHtml(str = '') {
+      return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    // Load thread data
+    async function loadThread() {
+      try {
+        const res = await fetch(`${API_BASE}/thread/${threadId}`);
+        if (!res.ok) throw new Error('Thread not found');
+        const thread = await res.json();
+        threadTitleEl.textContent = escapeHtml(thread.title);
+        threadMessageEl.textContent = escapeHtml(thread.content);
+        threadAuthorEl.textContent = `Posted by ${escapeHtml(thread.Username || 'Unknown')} on ${new Date(thread.created_at).toLocaleString()}`;
+      } catch (err) {
+        console.error(err);
+        threadTitleEl.textContent = 'Thread not found';
+        threadMessageEl.textContent = '';
+        threadAuthorEl.textContent = '';
+      }
+    }
+
+    // Load replies
+    async function loadReplies() {
+      repliesListEl.innerHTML = '<p class="text-center text-muted">Loading replies...</p>';
+      try {
+        const res = await fetch(`${API_BASE}/replies/${threadId}`);
+        if (!res.ok) throw new Error('Failed to fetch replies');
+        const replies = await res.json();
+
+        if (!replies.length) {
+          repliesListEl.innerHTML = '<p class="text-center text-muted">No replies yet. Be the first to reply!</p>';
+          return;
+        }
+
+        repliesListEl.innerHTML = replies.map(r => `
+          <div class="card reply-card mb-2 p-3">
+            <p>${escapeHtml(r.content)}</p>
+            <small class="small-muted">By ${escapeHtml(r.Username || 'Unknown')} on ${new Date(r.created_at).toLocaleString()}</small>
+          </div>
+        `).join('');
+
+      } catch (err) {
+        console.error(err);
+        repliesListEl.innerHTML = '<p class="text-danger text-center">Failed to load replies.</p>';
+      }
+    }
+
+    // Post a reply
+    replyForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const content = replyContentEl.value.trim();
+      if (!content) return;
+
+      const token = localStorage.getItem('token');
+      if (!token) return alert('You must be logged in to reply.');
+
+      try {
+        const res = await fetch(`${API_BASE}/replies`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ thread_id: threadId, content })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.message || 'Failed to post reply.');
+          return;
+        }
+        replyForm.reset();
+        loadReplies(); // refresh replies
+      } catch (err) {
+        console.error(err);
+        alert('Network error while posting reply.');
+      }
+    });
+
+    // initial load
+    loadThread();
+    loadReplies();
+  </script>
+    <script src="public/js/bootstrap.bundle.min.js"></script>
+    <script src="public/js/common.js"></script>
+</body>
+</html>

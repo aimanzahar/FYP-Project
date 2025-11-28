@@ -1,0 +1,40 @@
+/* Enable dark mode background and text */
+body.dark {
+  background-color: #121212;
+  color: #f1f1f1;
+}
+
+/* Ensure Bootstrap text utilities are not overridden */
+.dark .text-center,
+.dark .lead,
+.dark .display-4 {
+  color: inherit;
+}
+
+/* Button custom style (optional) */
+.btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+}
+
+/* Optional: Full height content area */
+main.content {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Optional: Adjust container padding for larger screens */
+@media (min-width: 768px) {
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}

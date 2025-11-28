@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Build Generator - HardwareForge</title>
+  <link rel="stylesheet" href="public/css/bootstrap.min.css">
+  <link rel="stylesheet" href="public/css/randbuildgen.css">
+  <link rel="stylesheet" href="public/css/dropdown.css" />
+</head>
+<body class="dark">
+  <div class="wrapper d-flex">
+    <aside id="sidebar-container" class="sidebar"></aside>
+    <main class="main-content flex-grow-1 p-4">
+      <div class="card p-4 shadow mx-auto" style="max-width: 400px;">
+        <h3 class="mb-3 text-center">Random PC Build Generator</h3>
+
+        <div class="mb-3">
+          <label for="budget" class="form-label">Budget (RM)</label>
+          <input type="number" class="form-control" id="budget" placeholder="Enter your budget">
+        </div>
+
+        <div class="mb-3">
+          <label for="cpuBrand" class="form-label">CPU Brand</label>
+          <select id="cpuBrand" class="form-select">
+            <option value="any">Any</option>
+            <option value="Intel">Intel</option>
+            <option value="AMD">AMD</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="gpuBrand" class="form-label">GPU Brand</label>
+          <select id="gpuBrand" class="form-select">
+            <option value="any">Any</option>
+            <option value="NVIDIA">NVIDIA</option>
+            <option value="AMD">AMD</option>
+          </select>
+        </div>
+
+        <button id="generateBtn" class="btn btn-primary w-100">Generate Random Build</button>
+        <div id="status" class="mt-3 text-center"></div>
+      </div>
+    </main>
+  </div>
+
+  <div id="dropdown-container"></div>
+
+<script>
+const apiBase = 'http://localhost:3001/api';
+
+// Fetch components and optionally filter by brand
+async function fetchComponents(endpoint, brand = 'any') {
+    try {
+        const res = await fetch(`${apiBase}/${endpoint}`);
+        let data = await res.json();
+
+        if (brand !== 'any') {
+            const brandLower = brand.toLowerCase().trim();
+            data = data.filter(item => item.brand && item.brand.toLowerCase().trim() === brandLower);
+        }
+
+        console.log(`Fetched ${endpoint}:`, data);
+        return data;
+    } catch (err) {
+        console.error(`Failed to fetch ${endpoint}:`, err);
+        return [];
+    }
+}
+
+function getRandomItem(array) {
+    if (!array || array.length === 0) return null;
+    return array[Math.floor(Math.random() * array.length)];
+}
+
+document.getElementById('generateBtn').addEventListener('click', async () => {
+    const status = document.getElementById('status');
+    status.textContent = "Generating build...";
+
+    const budget = parseFloat(document.getElementById('budget').value);
+    const cpuBrand = document.getElementById('cpuBrand').value;
+    const gpuBrand = document.getElementById('gpuBrand').value;
+
+    try {
+        const [cpus, gpus, motherboards, rams, cpucoolers, storages, cases, psus] = await Promise.all([
+            fetchComponents('cpus', cpuBrand),
+            fetchComponents('gpus', gpuBrand),
+            fetchComponents('motherboards'),
+            fetchComponents('rams'),
+            fetchComponents('cpucoolers'),
+            fetchComponents('storages'),
+            fetchComponents('cases'),
+            fetchComponents('psus')
+        ]);
+
+        // Check if brand filter removed all items
+        if ((cpuBrand !== 'any' && !cpus.length) || (gpuBrand !== 'any' && !gpus.length)) {
+            status.textContent = `❌ No components found for selected brand(s). Try selecting "Any".`;
+            return;
+        }
+
+        // Check if any category is empty
+        if (!cpus.length || !gpus.length || !motherboards.length || !rams.length || !cpucoolers.length || !storages.length || !cases.length || !psus.length) {
+            status.textContent = "❌ One or more component categories have no available items. Check your database.";
+            return;
+        }
+
+        const build = {
+            selectedCPU: getRandomItem(cpus),
+            selectedGPU: getRandomItem(gpus),
+            selectedMotherboard: getRandomItem(motherboards),
+            selectedRAM: getRandomItem(rams),
+            selectedCpuCooler: getRandomItem(cpucoolers),
+            selectedStorage: getRandomItem(storages),
+            selectedCase: getRandomItem(cases),
+            selectedPSU: getRandomItem(psus)
+        };
+
+        const totalPrice = Object.values(build).reduce((sum, item) => sum + (parseFloat(item?.price) || 0), 0);
+        if (budget && totalPrice > budget) {
+            status.textContent = `⚠️ Generated build exceeds your budget (RM${totalPrice.toFixed(2)})`;
+            return;
+        }
+
+        Object.entries(build).forEach(([key, value]) => {
+            if (value) localStorage.setItem(key, JSON.stringify(value));
+        });
+
+        window.location.href = '/build.html';
+
+    } catch (err) {
+        console.error(err);
+        status.textContent = "❌ Failed to generate build. Please try again.";
+    }
+});
+</script>
+
+    <script src="public/js/bootstrap.bundle.min.js"></script>
+    <script src="public/js/common.js"></script>
+</body>
+</html>
